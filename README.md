@@ -5,8 +5,8 @@ Embedded Lua (5.1/5.2) templating
 ## Tutorial
 
 ```lua
-elua = require "elua"
-template = elua.compile([[
+local elua = require "elua"
+local template = elua.compile([[
   Hello <%= name %>,
   Here are your items:
   <% for i, item in pairs(items) do %>
