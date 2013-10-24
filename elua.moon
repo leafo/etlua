@@ -38,13 +38,24 @@ class Parser
         @pos += 1
 
     close_start, close_stop = @str\find @close_tag, @pos, true
+    error "failed to find closing tag" unless close_start
+
     while @in_string @pos, close_start
       close_start, close_stop = @str\find @close_tag, close_stop, true
+
+    trim_newline = if "-" == @str\sub close_start - 1, close_start - 1
+      close_start -= 1
+      true
 
     kind = modifier == "=" and "interplate" or "code"
     @push_code kind, @pos, close_start - 1
 
     @pos = close_stop + 1
+
+    if trim_newline
+      if match = @str\match "^\n", @pos
+        @pos += #match
+
     true
 
   -- see if stop leaves us in the middle of a string
@@ -140,7 +151,7 @@ class Parser
 
           -- validate syntax
           unless loadstring assign
-            error "failed to parse: #{chunk[2]}"
+            error "failed to parse as expression: #{chunk[2]}"
 
           push "_b_i = _b_i + 1"
           push assign

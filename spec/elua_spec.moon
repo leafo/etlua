@@ -76,11 +76,27 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
           visitor: "yeah"
         }
       }
+
+
+      {
+        "hello"
+        "<%= 'hello' -%>
+"
+      }
+
     }
 
     for case in *cases
       it "should run template", ->
         assert.same case[1], render unpack case, 2
+
+    it "should error on unclosed tag", ->
+      assert.has_error ->
+        render "hello <%= world"
+
+    it "should fail on bad template", ->
+      assert.has_error ->
+        render "hello <%= if hello then print(nil) end%>"
 
   describe "Parser.in_string", ->
     cases = {
