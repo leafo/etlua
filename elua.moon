@@ -14,11 +14,22 @@ setfenv = setfenv or (fn, env) ->
 
   fn
 
+html_escape_entities = {
+  ['&']: '&amp;'
+  ['<']: '&lt;'
+  ['>']: '&gt;'
+  ['"']: '&quot;'
+  ["'"]: '&#039;'
+}
+
+html_escape = (str) ->
+  (str\gsub [=[["><'&]]=], html_escape_entities)
 
 class Parser
   open_tag: "<%"
   close_tag: "%>"
   modifiers: "^[=-]"
+  html_escape: true
 
   next_tag: =>
     start, stop = @str\find @open_tag, @pos, true
@@ -47,8 +58,7 @@ class Parser
       close_start -= 1
       true
 
-    kind = modifier == "=" and "interplate" or "code"
-    @push_code kind, @pos, close_start - 1
+    @push_code modifier or "code", @pos, close_start - 1
 
     @pos = close_stop + 1
 
@@ -120,16 +130,16 @@ class Parser
     code_fn = coroutine.wrap ->
       coroutine.yield code
 
-    fn = load code_fn, name
+    fn = assert load(code_fn, name)
     (env={}) ->
       setfenv fn, env
-      fn tostring, concat
+      fn tostring, concat, html_escape
 
   -- generates the code of the template
   chunks_to_lua: =>
     -- todo: find a no-conflict name for buffer
     buffer = {
-      "local _b, _b_i, _tostring, _concat = {}, 0, ..."
+      "local _b, _b_i, _tostring, _concat, _escape = {}, 0, ..."
     }
     buffer_i = #buffer
 
@@ -146,8 +156,13 @@ class Parser
           push "_b[_b_i] = #{("%q")\format(chunk)}"
         when "code"
           push chunk[2]
-        when "interplate"
-          assign = "_b[_b_i] = _tostring(#{chunk[2]})"
+        when "=", "-"
+          assign = "_tostring(#{chunk[2]})"
+
+          if t == "=" and @html_escape
+            assign = "_escape(" .. assign .. ")"
+
+          assign = "_b[_b_i] = " .. assign
 
           -- validate syntax
           unless loadstring assign

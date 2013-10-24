@@ -22,10 +22,14 @@ describe "elua", ->
       }
 
       {
-        "y%>u"
+        "y%&gt;u"
         [[<%= "y%>u" %>]]
       }
 
+      {
+        "y%>u"
+        [[<%- "y%>u" %>]]
+      }
 
       {
         [[
@@ -35,29 +39,19 @@ This is my message to 4
 
 
   hello 1
-
   hello 2
-
   hello 3
-
   hello 4
-
   hello 5
-
   hello 6
-
   hello 7
-
   hello 8
-
   hello 9
-
   hello 10
-
 
 message: yeah
 
-This is my message to oh yeah  %>"]]
+This is my message to oh yeah  %&gt;&quot;]]
         [[
 This is my message to <%= "you" %>
 This is my message to <%= 4 %>
@@ -66,7 +60,7 @@ This is my message to <%= 4 %>
 <% end %>
 
 <% for i=1,10 do%>
-  hello <%= i %>
+  hello <%= i -%>
 <% end %>
 
 message: <%= visitor %>
