@@ -132,7 +132,12 @@ class Parser
 
     fn = assert load(code_fn, name)
     (env={}) ->
-      setfenv fn, env
+      combined_env = setmetatable {}, __index: (name) =>
+        val = env[name]
+        val = _G[name] if val == nil
+        val
+
+      setfenv fn, combined_env
       fn tostring, concat, html_escape
 
   -- generates the code of the template

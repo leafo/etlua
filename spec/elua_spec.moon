@@ -78,6 +78,13 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
 "
       }
 
+
+      -- should have access to _G
+      {
+        ""
+        "<% assert(true) %>"
+        { hello: "world" }
+      }
     }
 
     for case in *cases
