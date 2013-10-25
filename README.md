@@ -2,6 +2,12 @@
 
 Embedded Lua templating
 
+## Install
+
+```bash
+$ luarocks install --server=http://rocks.moonscript.org elua
+```
+
 ## Tutorial
 
 ```lua
