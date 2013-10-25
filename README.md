@@ -1,6 +1,6 @@
 # elua
 
-Embedded Lua (5.1/5.2) templating 
+Embedded Lua templating
 
 ## Tutorial
 
@@ -32,6 +32,12 @@ The following tags are supported
 Any of the embedded Lua tags can use the `-%>` closing tag to suppress a
 following newline if there is one, for example: `<%= 'hello' -%>`.
 
+The module can be loaded by doing:
+
+```lua
+local elua = require "elua"
+```
+
 ### Methods
 
 #### `func = elua.compile(template_string)`
@@ -47,7 +53,21 @@ Compiles and renders the template in a single call. If you are concerned about
 high performance this should be avoided in favor of `compile` if it's possible
 to cache the compiled template.
 
+### Errors
+
+If any of the methods fail they will return `nil`, followed by the error
+message.
+
+### How it works
+
+* Templates are transparently translated into Lua code and then loaded as a
+  function. Rendering a compiled template is very fast.
+* Any compile time errors are rewritten to show the original source position in
+  the template.
+* The parser is aware of strings so you can put closing tags inside of a string
+  literal without any problems.
+
 ## License
 
-MIT
+MIT, Copyright (C) 2013 by Leaf Corcoran
 
