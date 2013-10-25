@@ -21,8 +21,8 @@ local template = elua.compile([[
 ]])
 
 print(template({
-  name: "leafo",
-  items: { "Shoe", "Reflector", "Scarf" }
+  name = "leafo",
+  items ={ "Shoe", "Reflector", "Scarf" }
 }))
 
 ```
