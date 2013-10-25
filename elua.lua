@@ -163,7 +163,7 @@ do
       if not (success) then
         return nil, err
       end
-      return self:load(self:chunks_to_lua(), "elua", str)
+      return self:load(self:chunks_to_lua())
     end,
     parse = function(self, str)
       self.str = str

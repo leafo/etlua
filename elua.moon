@@ -130,7 +130,7 @@ class Parser
   compile: (str) =>
     success, err = @parse str
     return nil, err unless success
-    @load @chunks_to_lua!, "elua", str
+    @load @chunks_to_lua!
 
   parse: (@str) =>
     assert type(@str) == "string", "expecting string for parse"
