@@ -9,7 +9,6 @@ describe "elua", ->
         "hello world"
       }
 
-
       {
         "one surf-zone two"
         "one <%= var %> two"
@@ -88,7 +87,7 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
     }
 
     for case in *cases
-      it "should run template", ->
+      it "should render template", ->
         assert.same case[1], render unpack case, 2
 
     it "should error on unclosed tag", ->
