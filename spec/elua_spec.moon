@@ -93,11 +93,19 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
 
     it "should error on unclosed tag", ->
       assert.has_error ->
-        render "hello <%= world"
+        assert render "hello <%= world"
 
-    it "should fail on bad template", ->
+    it "should fail on bad interpolate tag", ->
       assert.has_error ->
-        render "hello <%= if hello then print(nil) end%>"
+        assert render "hello <%= if hello then print(nil) end%>"
+
+    it "should fail on bad code tag", ->
+      assert.has_error ->
+        assert render [[
+          what is going on
+          hello <% howdy doody %>
+          there is nothing left
+        ]]
 
   describe "Parser.in_string", ->
     cases = {

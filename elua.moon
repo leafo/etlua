@@ -25,6 +25,18 @@ html_escape_entities = {
 html_escape = (str) ->
   (str\gsub [=[["><'&]]=], html_escape_entities)
 
+get_line = (str, line_num) ->
+  -- todo: this returns an extra blank line at the end
+  for line in str\gmatch "([^\n]*)\n?"
+    return line if line_num == 1
+    line_num -= 1
+
+pos_to_line = (str, pos) ->
+  line = 1
+  for _ in str\sub(1, pos)\gmatch("\n")
+    line += 1
+  line
+
 class Parser
   open_tag: "<%"
   close_tag: "%>"
@@ -49,7 +61,8 @@ class Parser
         @pos += 1
 
     close_start, close_stop = @str\find @close_tag, @pos, true
-    error "failed to find closing tag" unless close_start
+    unless close_start
+      return nil, @error_for_pos start, "failed to find closing tag"
 
     while @in_string @pos, close_start
       close_start, close_stop = @str\find @close_tag, close_stop, true
@@ -111,26 +124,56 @@ class Parser
 
   push_code: (kind, start, stop) =>
     insert @chunks, {
-      kind, @str\sub start, stop
+      kind, @str\sub(start, stop), start
     }
 
   compile: (str) =>
-    @parse str
-    @load @chunks_to_lua!
+    success, err = @parse str
+    return nil, err unless success
+    @load @chunks_to_lua!, "elua", str
 
   parse: (@str) =>
     assert type(@str) == "string", "expecting string for parse"
     @pos = 1
     @chunks = {}
 
-    while @next_tag!
-      nil
+    while true
+      found, err = @next_tag!
+      return nil, err if err
+      break unless found
+
+    true
+
+  parse_error: (err, code) =>
+    line_no, err_msg = err\match "%[.-%]:(%d+): (.*)$"
+    line_no = tonumber line_no
+
+    return unless line_no
+
+    line = get_line code, line_no
+    source_pos = tonumber line\match "^%-%-%[%[(%d+)%]%]"
+
+    return unless source_pos
+    @error_for_pos source_pos, err_msg
+
+  error_for_pos: (source_pos, err_msg) =>
+    source_line_no = pos_to_line @str, source_pos
+    source_line = get_line @str, source_line_no
+    "#{err_msg} [#{source_line_no}]: #{source_line}"
 
   load: (code, name="elua") =>
     code_fn = coroutine.wrap ->
       coroutine.yield code
 
-    fn = assert load(code_fn, name)
+    fn, err = load code_fn, name
+
+    unless fn
+      -- try to extract meaningful error message
+      if err_msg = @parse_error err, code
+        return nil, err_msg
+
+      return nil, err
+
     (env={}) ->
       combined_env = setmetatable {}, __index: (name) =>
         val = env[name]
@@ -160,7 +203,7 @@ class Parser
           push "_b_i = _b_i + 1"
           push "_b[_b_i] = #{("%q")\format(chunk)}"
         when "code"
-          push chunk[2]
+          push "--[[#{chunk[3]}]] " .. chunk[2]
         when "=", "-"
           assign = "_tostring(#{chunk[2]})"
 
@@ -169,12 +212,8 @@ class Parser
 
           assign = "_b[_b_i] = " .. assign
 
-          -- validate syntax
-          unless loadstring assign
-            error "failed to parse as expression: #{chunk[2]}"
-
           push "_b_i = _b_i + 1"
-          push assign
+          push "--[[#{chunk[3]}]] " .. assign
         else
           error "unknown type #{t}"
 
@@ -182,7 +221,13 @@ class Parser
     concat buffer, "\n"
 
 compile = Parser!\compile
-render = (str, env) -> compile(str) env
+
+render = (str, env) ->
+  fn, err = compile(str)
+  if fn
+    fn env
+  else
+    nil, err
 
 { :compile, :render, :Parser }
 
