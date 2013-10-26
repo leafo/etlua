@@ -1,7 +1,7 @@
 
-import compile, render, Parser from require "elua"
+import compile, render, Parser from require "etlua"
 
-describe "elua", ->
+describe "etlua", ->
   describe "Parser", ->
     cases = {
       {

@@ -1,8 +1,9 @@
-package = "elua"
-version = "dev-1"
+package = "etlua"
+version = "1.0.0-1"
 
 source = {
-  url = "git://github.com/leafo/elua.git"
+  url = "git://github.com/leafo/etlua.git",
+  branch = "v1.0.0"
 }
 
 description = {
@@ -11,7 +12,7 @@ description = {
     Allows you to render ERB style templates but with Lua. Supports <% %>, <%=
     %> and <%- %> tags (with optional newline slurping) for embedding code.
   ]],
-  homepage = "https://github.com/leafo/elua",
+  homepage = "https://github.com/leafo/etlua",
   maintainer = "Leaf Corcoran <leafot@gmail.com>",
   license = "MIT"
 }
@@ -23,7 +24,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["elua"] = "elua.lua",
+    ["etlua"] = "etlua.lua",
   },
 }
 

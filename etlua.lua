@@ -201,7 +201,7 @@ do
     end,
     load = function(self, code, name)
       if name == nil then
-        name = "elua"
+        name = "etlua"
       end
       local code_fn = coroutine.wrap(function()
         return coroutine.yield(code)

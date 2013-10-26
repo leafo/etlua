@@ -3,7 +3,7 @@ test:
 	busted
 
 build::
-	moonc elua.moon
+	moonc etlua.moon
 
 local: build
-	luarocks make --local elua-dev-1.rockspec
+	luarocks make --local etlua-dev-1.rockspec

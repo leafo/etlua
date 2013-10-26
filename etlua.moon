@@ -161,7 +161,7 @@ class Parser
     source_line = get_line @str, source_line_no
     "#{err_msg} [#{source_line_no}]: #{source_line}"
 
-  load: (code, name="elua") =>
+  load: (code, name="etlua") =>
     code_fn = coroutine.wrap ->
       coroutine.yield code
 
