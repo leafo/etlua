@@ -1,3 +1,4 @@
+local VERSION = "1.0.1"
 local insert, concat
 do
   local _obj_0 = table
@@ -307,5 +308,6 @@ end
 return {
   compile = compile,
   render = render,
-  Parser = Parser
+  Parser = Parser,
+  _version = VERSION
 }

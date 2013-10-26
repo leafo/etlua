@@ -1,3 +1,4 @@
+VERSION = "1.0.1"
 
 import insert, concat from table
 
@@ -229,5 +230,5 @@ render = (str, env) ->
   else
     nil, err
 
-{ :compile, :render, :Parser }
+{ :compile, :render, :Parser, _version: VERSION }
 
