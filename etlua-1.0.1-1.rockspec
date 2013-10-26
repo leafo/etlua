@@ -3,7 +3,7 @@ version = "1.0.1-1"
 
 source = {
   url = "git://github.com/leafo/etlua.git",
-  branch = "v1.0.0"
+  branch = "v1.0.1"
 }
 
 description = {
