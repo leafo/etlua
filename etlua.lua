@@ -204,9 +204,17 @@ do
       if name == nil then
         name = "etlua"
       end
-      local code_fn = coroutine.wrap(function()
-        return coroutine.yield(code)
-      end)
+      local code_fn
+      do
+        local code_ref = code
+        code_fn = function()
+          do
+            local ret = code_ref
+            code_ref = nil
+            return ret
+          end
+        end
+      end
       local fn, err = load(code_fn, name)
       if not (fn) then
         do

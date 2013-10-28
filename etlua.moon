@@ -1,4 +1,4 @@
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 import insert, concat from table
 
@@ -163,8 +163,11 @@ class Parser
     "#{err_msg} [#{source_line_no}]: #{source_line}"
 
   load: (code, name="etlua") =>
-    code_fn = coroutine.wrap ->
-      coroutine.yield code
+    code_fn = do
+      code_ref = code
+      ->
+        with ret = code_ref
+          code_ref = nil
 
     fn, err = load code_fn, name
 
