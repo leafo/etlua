@@ -134,7 +134,12 @@ class Parser
     return nil, err unless success
     fn, err = @load @chunks_to_lua!
     return nil, err unless fn
-    (...) -> @run fn, ...
+    (...) ->
+      buffer, err = @run fn, ...
+      if buffer
+        concat buffer
+      else
+        nil, err
 
   parse: (@str) =>
     assert type(@str) == "string", "expecting string for parse"
@@ -228,7 +233,7 @@ class Parser
         else
           error "unknown type #{t}"
 
-    push "return _concat(_b)"
+    push "return _b"
     concat buffer, "\n"
 
 compile = Parser!\compile

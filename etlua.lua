@@ -175,7 +175,13 @@ do
         return nil, err
       end
       return function(...)
-        return self:run(fn, ...)
+        local buffer
+        buffer, err = self:run(fn, ...)
+        if buffer then
+          return concat(buffer)
+        else
+          return nil, err
+        end
       end
     end,
     parse = function(self, str)
@@ -293,7 +299,7 @@ do
           error("unknown type " .. tostring(t))
         end
       end
-      push("return _concat(_b)")
+      push("return _b")
       return concat(buffer, "\n")
     end
   }
@@ -321,10 +327,10 @@ local compile = (function()
   end
 end)()
 local render
-render = function(str, env)
+render = function(str, ...)
   local fn, err = compile(str)
   if fn then
-    return fn(env)
+    return fn(...)
   else
     return nil, err
   end
