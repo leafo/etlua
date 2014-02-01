@@ -106,6 +106,12 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
           there is nothing left
         ]]
 
+    it "should use existing buffer", ->
+      fn = compile "hello<%= 'yeah' %>"
+      buff = {"first"}
+      out = fn {}, buff
+      assert.same "firsthelloyeah", out
+
   describe "Parser.in_string", ->
     cases = {
       { "hello world", false }
