@@ -169,7 +169,14 @@ do
       if not (success) then
         return nil, err
       end
-      return self:load(self:chunks_to_lua())
+      local fn
+      fn, err = self:load(self:chunks_to_lua())
+      if not (fn) then
+        return nil, err
+      end
+      return function(...)
+        return self:run(fn, ...)
+      end
     end,
     parse = function(self, str)
       self.str = str
@@ -230,25 +237,26 @@ do
         end
         return nil, err
       end
-      return function(env, buffer)
-        if env == nil then
-          env = { }
-        end
-        if buffer == nil then
-          buffer = { }
-        end
-        local combined_env = setmetatable({ }, {
-          __index = function(self, name)
-            local val = env[name]
-            if val == nil then
-              val = _G[name]
-            end
-            return val
-          end
-        })
-        setfenv(fn, combined_env)
-        return fn(buffer, #buffer, tostring, concat, html_escape)
+      return fn
+    end,
+    run = function(self, fn, env, buffer)
+      if env == nil then
+        env = { }
       end
+      if buffer == nil then
+        buffer = { }
+      end
+      local combined_env = setmetatable({ }, {
+        __index = function(self, name)
+          local val = env[name]
+          if val == nil then
+            val = _G[name]
+          end
+          return val
+        end
+      })
+      setfenv(fn, combined_env)
+      return fn(buffer, #buffer, tostring, concat, html_escape)
     end,
     chunks_to_lua = function(self)
       local buffer = {

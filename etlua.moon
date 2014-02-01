@@ -132,7 +132,9 @@ class Parser
   compile: (str) =>
     success, err = @parse str
     return nil, err unless success
-    @load @chunks_to_lua!
+    fn, err = @load @chunks_to_lua!
+    return nil, err unless fn
+    (...) -> @run fn, ...
 
   parse: (@str) =>
     assert type(@str) == "string", "expecting string for parse"
@@ -163,6 +165,7 @@ class Parser
     source_line = get_line @str, source_line_no
     "#{err_msg} [#{source_line_no}]: #{source_line}"
 
+  -- converts lua string into template function
   load: (code, name="etlua") =>
     code_fn = do
       code_ref = code
@@ -179,14 +182,17 @@ class Parser
 
       return nil, err
 
-    (env={}, buffer={}) ->
-      combined_env = setmetatable {}, __index: (name) =>
-        val = env[name]
-        val = _G[name] if val == nil
-        val
+    fn
 
-      setfenv fn, combined_env
-      fn buffer, #buffer, tostring, concat, html_escape
+  -- takes a function from @load and executes it with correct parameters
+  run: (fn, env={}, buffer={}) =>
+    combined_env = setmetatable {}, __index: (name) =>
+      val = env[name]
+      val = _G[name] if val == nil
+      val
+
+    setfenv fn, combined_env
+    fn buffer, #buffer, tostring, concat, html_escape
 
   -- generates the code of the template
   chunks_to_lua: =>
