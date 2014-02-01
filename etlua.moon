@@ -199,6 +199,11 @@ class Parser
     setfenv fn, combined_env
     fn buffer, #buffer, tostring, concat, html_escape
 
+  compile_to_lua: (str) =>
+    success, err = @parse str
+    return nil, err unless success
+    @chunks_to_lua!
+
   -- generates the code of the template
   chunks_to_lua: =>
     -- todo: find a no-conflict name for locals

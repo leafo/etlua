@@ -264,6 +264,13 @@ do
       setfenv(fn, combined_env)
       return fn(buffer, #buffer, tostring, concat, html_escape)
     end,
+    compile_to_lua = function(self, str)
+      local success, err = self:parse(str)
+      if not (success) then
+        return nil, err
+      end
+      return self:chunks_to_lua()
+    end,
     chunks_to_lua = function(self)
       local buffer = {
         "local _b, _b_i, _tostring, _concat, _escape = ..."
