@@ -233,10 +233,10 @@ class Parser
 
 compile = Parser!\compile
 
-render = (str, env) ->
+render = (str, ...) ->
   fn, err = compile(str)
   if fn
-    fn env
+    fn ...
   else
     nil, err
 
