@@ -1,6 +1,7 @@
 VERSION = "1.0.2"
 
 import insert, concat from table
+import load, setfenv, assert, type, error, tostring, tonumber, setmetatable from _G
 
 setfenv = setfenv or (fn, env) ->
   local name
@@ -178,20 +179,20 @@ class Parser
 
       return nil, err
 
-    (env={}) ->
+    (env={}, buffer={}) ->
       combined_env = setmetatable {}, __index: (name) =>
         val = env[name]
         val = _G[name] if val == nil
         val
 
       setfenv fn, combined_env
-      fn tostring, concat, html_escape
+      fn buffer, #buffer, tostring, concat, html_escape
 
   -- generates the code of the template
   chunks_to_lua: =>
-    -- todo: find a no-conflict name for buffer
+    -- todo: find a no-conflict name for locals
     buffer = {
-      "local _b, _b_i, _tostring, _concat, _escape = {}, 0, ..."
+      "local _b, _b_i, _tostring, _concat, _escape = ..."
     }
     buffer_i = #buffer
 

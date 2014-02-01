@@ -1,10 +1,15 @@
-local VERSION = "1.0.1"
+local VERSION = "1.0.2"
 local insert, concat
 do
   local _obj_0 = table
   insert, concat = _obj_0.insert, _obj_0.concat
 end
-local setfenv = setfenv or function(fn, env)
+local load, setfenv, assert, type, error, tostring, tonumber, setmetatable
+do
+  local _obj_0 = _G
+  load, setfenv, assert, type, error, tostring, tonumber, setmetatable = _obj_0.load, _obj_0.setfenv, _obj_0.assert, _obj_0.type, _obj_0.error, _obj_0.tostring, _obj_0.tonumber, _obj_0.setmetatable
+end
+setfenv = setfenv or function(fn, env)
   local name
   local i = 1
   while true do
@@ -225,9 +230,12 @@ do
         end
         return nil, err
       end
-      return function(env)
+      return function(env, buffer)
         if env == nil then
           env = { }
+        end
+        if buffer == nil then
+          buffer = { }
         end
         local combined_env = setmetatable({ }, {
           __index = function(self, name)
@@ -239,12 +247,12 @@ do
           end
         })
         setfenv(fn, combined_env)
-        return fn(tostring, concat, html_escape)
+        return fn(buffer, #buffer, tostring, concat, html_escape)
       end
     end,
     chunks_to_lua = function(self)
       local buffer = {
-        "local _b, _b_i, _tostring, _concat, _escape = {}, 0, ..."
+        "local _b, _b_i, _tostring, _concat, _escape = ..."
       }
       local buffer_i = #buffer
       local push
