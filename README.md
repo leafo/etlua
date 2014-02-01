@@ -107,17 +107,17 @@ _b[_b_i] = ""
 return _b
 ```
 
-There are a few interesting things, there are no global variable references,
-all required values are passed in as arguments. Comments are inserted to
+There are a few interesting things: there are no global variable references,
+all required values are passed in as arguments, and comments are inserted to
 annotate the positions of where code originated from. `_b` is expected to be a
 regular Lua table that is the buffer where chunks of the template are inserted
-into.
+as it's executed.
 
 #### `fn, err = parser.load(lua_code)`
 
 Converts the Lua code returned by `parser.compile_to_lua` into an actual
 function object. If there are any syntax errors then `nil` is returned along
-with the error message. At this stage, syntax errors are rewritten to point to
+with the error message. At this stage syntax errors are rewritten to point to
 the original location in the etlua code and not the generated code.
 
 #### `result = parser.run(fn, env={}, buffer={})`
@@ -146,5 +146,5 @@ print(table.concat(buffer)) -- print 'Hello World'
 
 ## License
 
-MIT, Copyright (C) 2013 by Leaf Corcoran
+MIT, Copyright (C) 2014 by Leaf Corcoran
 
