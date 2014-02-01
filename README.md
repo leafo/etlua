@@ -89,7 +89,7 @@ local parser = etlua.Parser()
 Parses a string of etlua code, returns the compiled Lua version as a
 string.
 
-Here's an example of generated code for the example script:
+Here's an example of the generated Lua code:
 
 ```lua
 local parser = etlua.Parser()
