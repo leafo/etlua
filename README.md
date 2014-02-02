@@ -5,7 +5,7 @@ Embedded Lua templating
 ## Install
 
 ```bash
-$ luarocks install --server=http://rocks.moonscript.org etlua
+$ luarocks install etlua
 ```
 
 ## Tutorial
