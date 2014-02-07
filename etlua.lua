@@ -316,15 +316,18 @@ do
       setfenv(fn, combined_env)
       return fn(buffer, #buffer, tostring, concat, html_escape)
     end,
-    compile_to_lua = function(self, str)
+    compile_to_lua = function(self, str, ...)
       local success, err = self:parse(str)
       if not (success) then
         return nil, err
       end
-      return self:chunks_to_lua()
+      return self:chunks_to_lua(...)
     end,
-    chunks_to_lua = function(self)
-      local r = Renderer()
+    chunks_to_lua = function(self, renderer_cls)
+      if renderer_cls == nil then
+        renderer_cls = Renderer
+      end
+      local r = renderer_cls()
       r:header()
       local _list_0 = self.chunks
       for _index_0 = 1, #_list_0 do

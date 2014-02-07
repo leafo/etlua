@@ -69,7 +69,6 @@ class Renderer
     @push "_b[_b_i] = ", ...
     @push "\n" if ...
 
-
 class Parser
   open_tag: "<%"
   close_tag: "%>"
@@ -230,14 +229,14 @@ class Parser
     setfenv fn, combined_env
     fn buffer, #buffer, tostring, concat, html_escape
 
-  compile_to_lua: (str) =>
+  compile_to_lua: (str, ...) =>
     success, err = @parse str
     return nil, err unless success
-    @chunks_to_lua!
+    @chunks_to_lua ...
 
   -- generates the code of the template
-  chunks_to_lua: =>
-    r = Renderer!
+  chunks_to_lua: (renderer_cls=Renderer) =>
+    r = renderer_cls!
     r\header!
 
     for chunk in *@chunks
