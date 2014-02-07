@@ -54,6 +54,58 @@ pos_to_line = function(str, pos)
   end
   return line
 end
+local Renderer
+do
+  local _base_0 = {
+    render = function(self)
+      return table.concat(self.buffer)
+    end,
+    push = function(self, str, ...)
+      local i = self.i + 1
+      self.buffer[i] = str
+      self.i = i
+      if ... then
+        return self:push(...)
+      end
+    end,
+    header = function(self)
+      return self:push("local _b, _b_i, _tostring, _concat, _escape = ...\n")
+    end,
+    footer = function(self)
+      return self:push("return _b")
+    end,
+    increment = function(self)
+      return self:push("_b_i = _b_i + 1\n")
+    end,
+    mark = function(self, pos)
+      return self:push("--[[", tostring(pos), "]] ")
+    end,
+    assign = function(self, ...)
+      self:push("_b[_b_i] = ", ...)
+      if ... then
+        return self:push("\n")
+      end
+    end
+  }
+  _base_0.__index = _base_0
+  local _class_0 = setmetatable({
+    __init = function(self)
+      self.buffer = { }
+      self.i = 0
+    end,
+    __base = _base_0,
+    __name = "Renderer"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  Renderer = _class_0
+end
 local Parser
 do
   local _base_0 = {
@@ -272,15 +324,8 @@ do
       return self:chunks_to_lua()
     end,
     chunks_to_lua = function(self)
-      local buffer = {
-        "local _b, _b_i, _tostring, _concat, _escape = ..."
-      }
-      local buffer_i = #buffer
-      local push
-      push = function(str)
-        buffer_i = buffer_i + 1
-        buffer[buffer_i] = str
-      end
+      local r = Renderer()
+      r:header()
       local _list_0 = self.chunks
       for _index_0 = 1, #_list_0 do
         local chunk = _list_0[_index_0]
@@ -290,24 +335,26 @@ do
         end
         local _exp_0 = t
         if "string" == _exp_0 then
-          push("_b_i = _b_i + 1")
-          push("_b[_b_i] = " .. tostring(("%q"):format(chunk)))
+          r:increment()
+          r:assign(("%q"):format(chunk))
         elseif "code" == _exp_0 then
-          push("--[[" .. tostring(chunk[3]) .. "]] " .. chunk[2])
+          r:mark(chunk[3])
+          r:push(chunk[2], "\n")
         elseif "=" == _exp_0 or "-" == _exp_0 then
-          local assign = "_tostring(" .. tostring(chunk[2]) .. ")"
+          r:increment()
+          r:mark()
+          r:assign()
           if t == "=" and self.html_escape then
-            assign = "_escape(" .. assign .. ")"
+            r:push("_escape(_tostring(", chunk[2], "))\n")
+          else
+            r:push("_tostring(", chunk[2], ")\n")
           end
-          assign = "_b[_b_i] = " .. assign
-          push("_b_i = _b_i + 1")
-          push("--[[" .. tostring(chunk[3]) .. "]] " .. assign)
         else
           error("unknown type " .. tostring(t))
         end
       end
-      push("return _b")
-      return concat(buffer, "\n")
+      r:footer()
+      return r:render()
     end
   }
   _base_0.__index = _base_0
@@ -326,13 +373,14 @@ do
   _base_0.__class = _class_0
   Parser = _class_0
 end
-local compile = (function()
+local compile
+do
   local _base_0 = Parser()
   local _fn_0 = _base_0.compile
-  return function(...)
+  compile = function(...)
     return _fn_0(_base_0, ...)
   end
-end)()
+end
 local render
 render = function(str, ...)
   local fn, err = compile(str)
@@ -346,5 +394,6 @@ return {
   compile = compile,
   render = render,
   Parser = Parser,
+  Renderer = Renderer,
   _version = VERSION
 }

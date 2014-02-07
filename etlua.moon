@@ -39,6 +39,37 @@ pos_to_line = (str, pos) ->
     line += 1
   line
 
+class Renderer
+  new: =>
+    @buffer = {}
+    @i = 0
+
+  render: =>
+    table.concat @buffer
+
+  push: (str, ...) =>
+    i = @i + 1
+    @buffer[i] = str
+    @i = i
+    @push ...  if ...
+
+  header: =>
+    @push "local _b, _b_i, _tostring, _concat, _escape = ...\n"
+
+  footer: =>
+    @push "return _b"
+
+  increment: =>
+    @push "_b_i = _b_i + 1\n"
+
+  mark: (pos) =>
+    @push "--[[", tostring(pos), "]] "
+
+  assign: (...) =>
+    @push "_b[_b_i] = ", ...
+    @push "\n" if ...
+
+
 class Parser
   open_tag: "<%"
   close_tag: "%>"
@@ -206,40 +237,35 @@ class Parser
 
   -- generates the code of the template
   chunks_to_lua: =>
-    -- todo: find a no-conflict name for locals
-    buffer = {
-      "local _b, _b_i, _tostring, _concat, _escape = ..."
-    }
-    buffer_i = #buffer
-
-    push = (str) ->
-      buffer_i += 1
-      buffer[buffer_i] = str
+    r = Renderer!
+    r\header!
 
     for chunk in *@chunks
       t = type chunk
       t = chunk[1] if t == "table"
       switch t
         when "string"
-          push "_b_i = _b_i + 1"
-          push "_b[_b_i] = #{("%q")\format(chunk)}"
+          r\increment!
+          r\assign ("%q")\format(chunk)
         when "code"
-          push "--[[#{chunk[3]}]] " .. chunk[2]
+          r\mark chunk[3]
+          r\push chunk[2], "\n"
         when "=", "-"
-          assign = "_tostring(#{chunk[2]})"
+          r\increment!
+          r\mark!
+          r\assign!
 
           if t == "=" and @html_escape
-            assign = "_escape(" .. assign .. ")"
-
-          assign = "_b[_b_i] = " .. assign
-
-          push "_b_i = _b_i + 1"
-          push "--[[#{chunk[3]}]] " .. assign
+            r\push "_escape(_tostring(", chunk[2], "))\n"
+          else
+            r\push "_tostring(", chunk[2], ")\n"
         else
           error "unknown type #{t}"
 
-    push "return _b"
-    concat buffer, "\n"
+    r\footer!
+    r\render!
+
+
 
 compile = Parser!\compile
 
@@ -250,5 +276,5 @@ render = (str, ...) ->
   else
     nil, err
 
-{ :compile, :render, :Parser, _version: VERSION }
+{ :compile, :render, :Parser, :Renderer, _version: VERSION }
 
