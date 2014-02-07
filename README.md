@@ -138,8 +138,8 @@ first_fn = parser:load(parser:compile_to_lua("Hello "))
 second_fn = parser:load(parser:compile_to_lua("World"))
 
 buffer = {}
-parser:run(first_fn, nil, buffer)
-parser:run(second_fn, nil, buffer)
+parser:run(first_fn, nil, buffer, #buffer)
+parser:run(second_fn, nil, buffer, #buffer)
 
 print(table.concat(buffer)) -- print 'Hello World'
 ```

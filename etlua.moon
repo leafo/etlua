@@ -54,7 +54,7 @@ class Compiler
     @push ...  if ...
 
   header: =>
-    @push "local _b, _b_i, _tostring, _concat, _escape = ...\n"
+    @push "local _tostring, _escape, _b, _b_i = ...\n"
 
   footer: =>
     @push "return _b"
@@ -220,14 +220,18 @@ class Parser
     fn
 
   -- takes a function from @load and executes it with correct parameters
-  run: (fn, env={}, buffer={}) =>
+  run: (fn, env={}, buffer, i, ...) =>
     combined_env = setmetatable {}, __index: (name) =>
       val = env[name]
       val = _G[name] if val == nil
       val
 
+    unless buffer
+      buffer = {}
+      i = 0
+
     setfenv fn, combined_env
-    fn buffer, #buffer, tostring, concat, html_escape
+    fn tostring, html_escape, buffer, i, ...
 
   compile_to_lua: (str, ...) =>
     success, err = @parse str

@@ -109,7 +109,7 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
     it "should use existing buffer", ->
       fn = compile "hello<%= 'yeah' %>"
       buff = {"first"}
-      out = fn {}, buff
+      out = fn {}, buff, #buff
       assert.same "firsthelloyeah", out
 
     it "should compile readme example", ->
@@ -119,8 +119,8 @@ This is my message to <%= [=[oh yeah  %>"]=] %>]]
       second_fn = parser\load parser\compile_to_lua "World"
 
       buffer = {}
-      parser\run first_fn, nil, buffer
-      parser\run second_fn, nil, buffer
+      parser\run first_fn, nil, buffer, #buffer
+      parser\run second_fn, nil, buffer, #buffer
 
       assert.same "Hello World", table.concat buffer
 
