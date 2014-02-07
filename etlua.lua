@@ -54,7 +54,7 @@ pos_to_line = function(str, pos)
   end
   return line
 end
-local Renderer
+local Compiler
 do
   local _base_0 = {
     render = function(self)
@@ -94,7 +94,7 @@ do
       self.i = 0
     end,
     __base = _base_0,
-    __name = "Renderer"
+    __name = "Compiler"
   }, {
     __index = _base_0,
     __call = function(cls, ...)
@@ -104,7 +104,7 @@ do
     end
   })
   _base_0.__class = _class_0
-  Renderer = _class_0
+  Compiler = _class_0
 end
 local Parser
 do
@@ -323,11 +323,11 @@ do
       end
       return self:chunks_to_lua(...)
     end,
-    chunks_to_lua = function(self, renderer_cls)
-      if renderer_cls == nil then
-        renderer_cls = Renderer
+    chunks_to_lua = function(self, compiler_cls)
+      if compiler_cls == nil then
+        compiler_cls = Compiler
       end
-      local r = renderer_cls()
+      local r = compiler_cls()
       r:header()
       local _list_0 = self.chunks
       for _index_0 = 1, #_list_0 do
@@ -397,6 +397,6 @@ return {
   compile = compile,
   render = render,
   Parser = Parser,
-  Renderer = Renderer,
+  Compiler = Compiler,
   _version = VERSION
 }

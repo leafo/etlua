@@ -39,7 +39,7 @@ pos_to_line = (str, pos) ->
     line += 1
   line
 
-class Renderer
+class Compiler
   new: =>
     @buffer = {}
     @i = 0
@@ -235,8 +235,8 @@ class Parser
     @chunks_to_lua ...
 
   -- generates the code of the template
-  chunks_to_lua: (renderer_cls=Renderer) =>
-    r = renderer_cls!
+  chunks_to_lua: (compiler_cls=Compiler) =>
+    r = compiler_cls!
     r\header!
 
     for chunk in *@chunks
@@ -275,5 +275,5 @@ render = (str, ...) ->
   else
     nil, err
 
-{ :compile, :render, :Parser, :Renderer, _version: VERSION }
+{ :compile, :render, :Parser, :Compiler, _version: VERSION }
 
