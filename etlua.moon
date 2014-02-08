@@ -255,7 +255,7 @@ class Parser
           r\push chunk[2], "\n"
         when "=", "-"
           r\increment!
-          r\mark!
+          r\mark chunk[3]
           r\assign!
 
           if t == "=" and @html_escape
