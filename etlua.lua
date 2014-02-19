@@ -69,7 +69,7 @@ do
       end
     end,
     header = function(self)
-      return self:push("local _b, _b_i, _tostring, _concat, _escape = ...\n")
+      return self:push("local _tostring, _escape, _b, _b_i = ...\n")
     end,
     footer = function(self)
       return self:push("return _b")
@@ -297,12 +297,9 @@ do
       end
       return fn
     end,
-    run = function(self, fn, env, buffer)
+    run = function(self, fn, env, buffer, i, ...)
       if env == nil then
         env = { }
-      end
-      if buffer == nil then
-        buffer = { }
       end
       local combined_env = setmetatable({ }, {
         __index = function(self, name)
@@ -313,8 +310,12 @@ do
           return val
         end
       })
+      if not (buffer) then
+        buffer = { }
+        i = 0
+      end
       setfenv(fn, combined_env)
-      return fn(buffer, #buffer, tostring, concat, html_escape)
+      return fn(tostring, html_escape, buffer, i, ...)
     end,
     compile_to_lua = function(self, str, ...)
       local success, err = self:parse(str)
@@ -345,7 +346,7 @@ do
           r:push(chunk[2], "\n")
         elseif "=" == _exp_0 or "-" == _exp_0 then
           r:increment()
-          r:mark()
+          r:mark(chunk[3])
           r:assign()
           if t == "=" and self.html_escape then
             r:push("_escape(_tostring(", chunk[2], "))\n")
