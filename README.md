@@ -163,7 +163,7 @@ import Compiler from require "etlua"
 class DebugCompiler extends Compiler
   header: =>
     @push 'print("Running template")\n'
-    super
+    super!
 
 -- try it out
 import Parser from require "etlua"
