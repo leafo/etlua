@@ -56,6 +56,7 @@ pos_to_line = function(str, pos)
 end
 local Compiler
 do
+  local _class_0
   local _base_0 = {
     render = function(self)
       return table.concat(self.buffer)
@@ -88,7 +89,7 @@ do
     end
   }
   _base_0.__index = _base_0
-  local _class_0 = setmetatable({
+  _class_0 = setmetatable({
     __init = function(self)
       self.buffer = { }
       self.i = 0
@@ -108,6 +109,7 @@ do
 end
 local Parser
 do
+  local _class_0
   local _base_0 = {
     open_tag = "<%",
     close_tag = "%>",
@@ -137,6 +139,9 @@ do
       end
       while self:in_string(self.pos, close_start) do
         close_start, close_stop = self.str:find(self.close_tag, close_stop, true)
+        if not (close_start) then
+          return nil, self:error_for_pos(start, "failed to find string close")
+        end
       end
       local trim_newline
       if "-" == self.str:sub(close_start - 1, close_start - 1) then
@@ -362,7 +367,7 @@ do
     end
   }
   _base_0.__index = _base_0
-  local _class_0 = setmetatable({
+  _class_0 = setmetatable({
     __init = function() end,
     __base = _base_0,
     __name = "Parser"
