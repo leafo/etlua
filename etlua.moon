@@ -1,4 +1,4 @@
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 import insert, concat from table
 import load, setfenv, assert, type, error, tostring, tonumber, setmetatable from _G
