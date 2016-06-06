@@ -1,4 +1,4 @@
-local VERSION = "1.0.3"
+local VERSION = "1.3.0"
 local insert, concat
 do
   local _obj_0 = table
