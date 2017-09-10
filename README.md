@@ -174,6 +174,12 @@ print Parser!\compile_to_lua "hello", DebugCompiler
 `compile_to_lua` takes an optional second argument of the compiler class to
 use.
 
+## Editor Support
+
+* [Vim](https://github.com/VaiN474/vim-etlua)
+* [Sublime/Textmate](https://github.com/VaiN474/etlua-tmLanguage)
+* [Atom](https://github.com/VaiN474/language-etlua)
+
 ## License
 
 MIT, Copyright (C) 2014 by Leaf Corcoran
