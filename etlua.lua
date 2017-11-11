@@ -58,6 +58,7 @@ local Compiler
 do
   local _class_0
   local _base_0 = {
+    html_escape = true,
     render = function(self)
       return table.concat(self.buffer)
     end,
@@ -86,6 +87,37 @@ do
       if ... then
         return self:push("\n")
       end
+    end,
+    compile_chunks = function(self, chunks)
+      self:header()
+      for _index_0 = 1, #chunks do
+        local chunk = chunks[_index_0]
+        local t = type(chunk)
+        if t == "table" then
+          t = chunk[1]
+        end
+        local _exp_0 = t
+        if "string" == _exp_0 then
+          self:increment()
+          self:assign(("%q"):format(chunk))
+        elseif "code" == _exp_0 then
+          self:mark(chunk[3])
+          self:push(chunk[2], "\n")
+        elseif "=" == _exp_0 or "-" == _exp_0 then
+          self:increment()
+          self:mark(chunk[3])
+          self:assign()
+          if t == "=" and self.html_escape then
+            self:push("_escape(_tostring(", chunk[2], "))\n")
+          else
+            self:push("_tostring(", chunk[2], ")\n")
+          end
+        else
+          error("unknown type " .. tostring(t))
+        end
+      end
+      self:footer()
+      return self:render()
     end
   }
   _base_0.__index = _base_0
@@ -114,7 +146,6 @@ do
     open_tag = "<%",
     close_tag = "%>",
     modifiers = "^[=-]",
-    html_escape = true,
     next_tag = function(self)
       local start, stop = self.str:find(self.open_tag, self.pos, true)
       if not (start) then
@@ -333,37 +364,7 @@ do
       if compiler_cls == nil then
         compiler_cls = Compiler
       end
-      local r = compiler_cls()
-      r:header()
-      local _list_0 = self.chunks
-      for _index_0 = 1, #_list_0 do
-        local chunk = _list_0[_index_0]
-        local t = type(chunk)
-        if t == "table" then
-          t = chunk[1]
-        end
-        local _exp_0 = t
-        if "string" == _exp_0 then
-          r:increment()
-          r:assign(("%q"):format(chunk))
-        elseif "code" == _exp_0 then
-          r:mark(chunk[3])
-          r:push(chunk[2], "\n")
-        elseif "=" == _exp_0 or "-" == _exp_0 then
-          r:increment()
-          r:mark(chunk[3])
-          r:assign()
-          if t == "=" and self.html_escape then
-            r:push("_escape(_tostring(", chunk[2], "))\n")
-          else
-            r:push("_tostring(", chunk[2], ")\n")
-          end
-        else
-          error("unknown type " .. tostring(t))
-        end
-      end
-      r:footer()
-      return r:render()
+      return compiler_cls():compile_chunks(self.chunks)
     end
   }
   _base_0.__index = _base_0

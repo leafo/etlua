@@ -40,6 +40,8 @@ pos_to_line = (str, pos) ->
   line
 
 class Compiler
+  html_escape: true
+
   new: =>
     @buffer = {}
     @i = 0
@@ -69,11 +71,38 @@ class Compiler
     @push "_b[_b_i] = ", ...
     @push "\n" if ...
 
+  compile_chunks: (chunks) =>
+    @header!
+
+    for chunk in *chunks
+      t = type chunk
+      t = chunk[1] if t == "table"
+      switch t
+        when "string"
+          @increment!
+          @assign ("%q")\format(chunk)
+        when "code"
+          @mark chunk[3]
+          @push chunk[2], "\n"
+        when "=", "-"
+          @increment!
+          @mark chunk[3]
+          @assign!
+
+          if t == "=" and @html_escape
+            @push "_escape(_tostring(", chunk[2], "))\n"
+          else
+            @push "_tostring(", chunk[2], ")\n"
+        else
+          error "unknown type #{t}"
+
+    @footer!
+    @render!
+
 class Parser
   open_tag: "<%"
   close_tag: "%>"
   modifiers: "^[=-]"
-  html_escape: true
 
   next_tag: =>
     start, stop = @str\find @open_tag, @pos, true
@@ -242,35 +271,7 @@ class Parser
 
   -- generates the code of the template
   chunks_to_lua: (compiler_cls=Compiler) =>
-    r = compiler_cls!
-    r\header!
-
-    for chunk in *@chunks
-      t = type chunk
-      t = chunk[1] if t == "table"
-      switch t
-        when "string"
-          r\increment!
-          r\assign ("%q")\format(chunk)
-        when "code"
-          r\mark chunk[3]
-          r\push chunk[2], "\n"
-        when "=", "-"
-          r\increment!
-          r\mark chunk[3]
-          r\assign!
-
-          if t == "=" and @html_escape
-            r\push "_escape(_tostring(", chunk[2], "))\n"
-          else
-            r\push "_tostring(", chunk[2], ")\n"
-        else
-          error "unknown type #{t}"
-
-    r\footer!
-    r\render!
-
-
+    compiler_cls!\compile_chunks @chunks
 
 compile = Parser!\compile
 
