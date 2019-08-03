@@ -177,6 +177,7 @@ use.
 ## Editor Support
 
 * [Vim](https://github.com/VaiN474/vim-etlua)
+* [Visual Studio Code](https://github.com/commita/vscode-lua-templates)
 * [Sublime/Textmate](https://github.com/VaiN474/etlua-tmLanguage)
 * [Atom](https://github.com/VaiN474/language-etlua)
 
