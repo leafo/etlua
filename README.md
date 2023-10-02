@@ -180,6 +180,7 @@ use.
 * [Visual Studio Code](https://github.com/commita/vscode-lua-templates)
 * [Sublime/Textmate](https://github.com/VaiN474/etlua-tmLanguage)
 * [Atom](https://github.com/VaiN474/language-etlua)
+* [Tree-Sitter grammar](https://github.com/UrNightmaree/tree-sitter-etlua)
 
 ## License
 
